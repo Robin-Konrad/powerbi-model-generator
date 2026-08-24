@@ -96,18 +96,6 @@ def create_globals_measures(globals_file):
     append(globals_file, f"\n\tmeasure {quote('_Selected Granularity')} = SELECTEDVALUE('_DateGranularity'[_DateGranularity Order], 0)\n")
     append(globals_file, f"\tmeasure {quote('_Academic Year Start Month')} = {ACADEMIC_MONTH}\n")
     append(globals_file, f"\tmeasure {quote('_ReportingMonth')} = EOMONTH(TODAY(), -1)\n")
-    append(globals_file, f"""\tmeasure {quote('Date (str)')} =
-        SWITCH(
-            [_Selected Granularity],
-            0, FORMAT(FIRSTDATE('_DateTable'[Date]), "MMMM YYYY"),
-            1, "Q" & FORMAT(FIRSTDATE('_DateTable'[Date]), "Q") & " " & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
-            2, FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
-            3, IF(
-                MONTH(FIRSTDATE('_DateTable'[Date])) >= [Academic Year Month Start],
-                FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY") & "-" & FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), 12), "YYYY"),
-                FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), -12), "YYYY") & "-" & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY")
-            )
-        )\n""")
     append(globals_file, f"""\tmeasure {quote('Filter - Prior 25 Months')} =
         -- e.g. if current month is july 2026, returns june 2024 through june 2026
         VAR EndMonth =
@@ -128,6 +116,19 @@ def create_globals_measures(globals_file):
             )\n""")
 
     if GRANULARITY_ALL:
+        append(globals_file, f"""\tmeasure {quote('Date (str)')} =
+            SWITCH(
+                [_Selected Granularity],
+                0, FORMAT(FIRSTDATE('_DateTable'[Date]), "MMMM YYYY"),
+                1, FORMAT(FIRSTDATE('_DateTable'[Date]), "MMMM YYYY"),
+                2, "Q" & FORMAT(FIRSTDATE('_DateTable'[Date]), "Q") & " " & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
+                3, FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
+                4, IF(
+                    MONTH(FIRSTDATE('_DateTable'[Date])) >= [Academic Year Month Start],
+                    FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY") & "-" & FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), 12), "YYYY"),
+                    FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), -12), "YYYY") & "-" & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY")
+                )
+            )\n""")
         append(globals_file,f"""\tmeasure {quote('_Title - Reporting Period')} =
             SWITCH(
                 [_Selected Granularity],
@@ -166,6 +167,18 @@ def create_globals_measures(globals_file):
                 4, "AYTD"
             )\n""")
     else:
+        append(globals_file, f"""\tmeasure {quote('Date (str)')} =
+            SWITCH(
+                [_Selected Granularity],
+                0, FORMAT(FIRSTDATE('_DateTable'[Date]), "MMMM YYYY"),
+                1, "Q" & FORMAT(FIRSTDATE('_DateTable'[Date]), "Q") & " " & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
+                2, FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
+                3, IF(
+                    MONTH(FIRSTDATE('_DateTable'[Date])) >= [Academic Year Month Start],
+                    FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY") & "-" & FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), 12), "YYYY"),
+                    FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), -12), "YYYY") & "-" & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY")
+                )
+            )\n""")
         append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period')} =
             SWITCH(
                 [_Selected Granularity],
