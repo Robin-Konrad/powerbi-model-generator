@@ -1,5 +1,4 @@
 
-
 """
 Overview:
     script takes a pbip project (based off sample pbip?) and a tablename,
@@ -23,15 +22,13 @@ import re
 import os
 
 
-#---------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # CONFIG     --------------------------------------------------------------------------
 
 PROJECTNAME = "Sample Template"          # whatever is in front of .pbip in files
 
 TABLE_NAME = "Outreach Activity"           # table name as it appears in the model, e.g. "Outreach Activity"
 DATE_FIELD_NAME = "Outreach Date"      # column in TABLE_NAME that relates to _DateTable[Date]
-    #-------------- add this to the date range slicer????-----------------------------------------------???????????
-
 GRANULARITY_ALL = True   # selector for if a 5th granularity selector All exists
 
 TABLES_DIR = f"{PROJECTNAME}.SemanticModel/definition/tables"
@@ -40,7 +37,7 @@ TABLE_FILE = f"{TABLES_DIR}/{TABLE_NAME}.tmdl"
 ACADEMIC_MONTH = 10
 
 
-#----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
 # error checking-------------------------------------------------------------------------
 
 if not os.path.exists(TABLE_FILE):
@@ -62,6 +59,69 @@ def append(path, text):
     with open(path, "a", encoding="utf-8") as f:
         f.write(text + "\n")
 
+# creating _DateGranularity paramater
+def create_date_granularity_parameter():
+    items = []
+    if GRANULARITY_ALL:
+        items.append(("All", "Week Start"))
+    items += [
+        ("Month", "Month Start"),
+        ("Quarter", "Year-Quarter"),
+        ("Year", "Year Label"),
+        ("Year (Academic)", "Year Label (Academic)"),
+    ]
+
+    item_rows = []   # get the exact row string for each item to put inside full tmdl template string
+    for i, (label, col) in enumerate(items):
+        item_rows.append(f'("{label}", NAMEOF({quote("_DateTable")}[{col}]), {i})')
+
+    rows = ",\n\t\t\t\t".join(item_rows)  # add correct indentation
+
+    template = """table _DateGranularity
+
+    column _DateGranularity
+        summarizeBy: none
+        sourceColumn: [Value1]
+        sortByColumn: '_DateGranularity Order'
+
+        relatedColumnDetails
+            groupByColumn: '_DateGranularity Fields'
+
+        annotation SummarizationSetBy = Automatic
+
+    column '_DateGranularity Fields'
+        isHidden
+        summarizeBy: none
+        sourceColumn: [Value2]
+        sortByColumn: '_DateGranularity Order'
+
+        extendedProperty ParameterMetadata =
+                {{
+                  "version": 3,
+                  "kind": 2
+                }}
+
+        annotation SummarizationSetBy = Automatic
+
+    column '_DateGranularity Order'
+        isHidden
+        formatString: 0
+        summarizeBy: sum
+        sourceColumn: [Value3]
+
+        annotation SummarizationSetBy = Automatic
+
+    partition _DateGranularity = calculated
+        mode: import
+        source =
+                {{
+                {rows}
+                }}
+"""
+    content = template.format(rows=rows)
+
+    with open(f"{TABLES_DIR}/_DateGranularity.tmdl", "w", encoding="utf-8") as f:
+        f.write(content)
 
 # creating relationship  -----------------------------------------
 
@@ -94,7 +154,7 @@ def create_globals_table():
 
 def create_globals_measures(globals_file):
     append(globals_file, f"\n\tmeasure {quote('_Selected Granularity')} = SELECTEDVALUE('_DateGranularity'[_DateGranularity Order], 0)\n")
-    append(globals_file, f"\tmeasure {quote('_Academic Year Start Month')} = {ACADEMIC_MONTH}\n")
+    append(globals_file, f"\tmeasure {quote('_Academic Year Month Start')} = {ACADEMIC_MONTH}\n")
     append(globals_file, f"\tmeasure {quote('_ReportingMonth')} = EOMONTH(TODAY(), -1)\n")
     append(globals_file, f"""\tmeasure {quote('Filter - Prior 25 Months')} =
         -- e.g. if current month is july 2026, returns june 2024 through june 2026
@@ -124,12 +184,12 @@ def create_globals_measures(globals_file):
                 2, "Q" & FORMAT(FIRSTDATE('_DateTable'[Date]), "Q") & " " & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
                 3, FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
                 4, IF(
-                    MONTH(FIRSTDATE('_DateTable'[Date])) >= [Academic Year Month Start],
+                    MONTH(FIRSTDATE('_DateTable'[Date])) >= [_Academic Year Month Start],
                     FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY") & "-" & FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), 12), "YYYY"),
                     FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), -12), "YYYY") & "-" & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY")
                 )
             )\n""")
-        append(globals_file,f"""\tmeasure {quote('_Title - Reporting Period')} =
+        append(globals_file ,f"""\tmeasure {quote('_Title - Reporting Period')} =
             SWITCH(
                 [_Selected Granularity],
                 0, " ",
@@ -157,7 +217,7 @@ def create_globals_measures(globals_file):
                 4, "academic year to date"
             ) &
             " in prior year"\n""")
-        append(globals_file,f"""\tmeasure {quote('_Title - Reporting Period (Text Box Fmt)')} =
+        append(globals_file ,f"""\tmeasure {quote('_Title - Reporting Period (Text Box Fmt)')} =
             SWITCH(
                 [_Selected Granularity],
                 0, " ",
@@ -174,7 +234,7 @@ def create_globals_measures(globals_file):
                 1, "Q" & FORMAT(FIRSTDATE('_DateTable'[Date]), "Q") & " " & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
                 2, FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
                 3, IF(
-                    MONTH(FIRSTDATE('_DateTable'[Date])) >= [Academic Year Month Start],
+                    MONTH(FIRSTDATE('_DateTable'[Date])) >= [_Academic Year Month Start],
                     FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY") & "-" & FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), 12), "YYYY"),
                     FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), -12), "YYYY") & "-" & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY")
                 )
@@ -224,7 +284,7 @@ def add_date_in_range():
             1
         )
         VAR EndDate = EOMONTH(TODAY(), 0)
-        
+
         RETURN
         IF(
             '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= StartDate &&
@@ -236,15 +296,15 @@ def add_date_in_range():
 def add_Is_Current_columns():
     append(TABLE_FILE, f"""\tcolumn {quote('_Is CAYTD')} =
         VAR ReportDate = [_ReportingMonth]
-        VAR StartMonth = [_Academic Year Start Month]
-        
+        VAR StartMonth = [_Academic Year Month Start]
+
         VAR AcademicYearStart =
             DATE(
                 YEAR(ReportDate) - IF(MONTH(ReportDate) < StartMonth, 1, 0),
                 StartMonth,
                 1
             )
-        
+
         RETURN
             '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= AcademicYearStart &&
             '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= ReportDate\n""")
@@ -276,16 +336,16 @@ def add_Is_Previous_columns():
     append(TABLE_FILE, f"""\tcolumn {quote('_Is PYAYTD')} =
         VAR ReportDate = [_ReportingMonth]
         VAR PYReportDate = EDATE(ReportDate, -12)
-        
-        VAR StartMonth = [_Academic Year Start Month]
-        
+
+        VAR StartMonth = [_Academic Year Month Start]
+
         VAR AcademicYearStart =
             DATE(
                 YEAR(PYReportDate) - IF(MONTH(PYReportDate) < StartMonth, 1, 0),
                 StartMonth,
                 1
             )
-        
+
         RETURN
             '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= AcademicYearStart &&
             '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= PYReportDate\n""")
@@ -293,26 +353,26 @@ def add_Is_Previous_columns():
     append(TABLE_FILE, f"""\tcolumn {quote('_Is PYPM')} = 
         VAR ReportDate = [_ReportingMonth]
         VAR PYReportDate = EDATE(ReportDate, -12)
-        
+
         RETURN EOMONTH('{TABLE_NAME}'[{DATE_FIELD_NAME}], 0) = EOMONTH(PYReportDate, 0)\n""")
     append(TABLE_FILE, f"""\tcolumn {quote('_Is PYQTD')} = 
         VAR ReportDate = [_ReportingMonth]
         VAR PYReportDate = EDATE(ReportDate, -12)
-        
+
         VAR QuarterStart =
             DATE(
                 YEAR(PYReportDate),
                 (QUARTER(PYReportDate) - 1) * 3 + 1,
                 1
             )
-        
+
         RETURN
             '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= QuarterStart &&
             '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= PYReportDate\n""")
     append(TABLE_FILE, f"""\tcolumn {quote('_Is PYYTD')} = 
         VAR ReportDate = [_ReportingMonth]
         VAR PYReportDate = EDATE(ReportDate, -12)
-        
+
         RETURN
             '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= DATE(YEAR(PYReportDate), 1, 1) &&
             '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= PYReportDate\n""")
@@ -372,7 +432,7 @@ def add_current_previous_period_measures(field):
     # on whether "All" is a selectable granularity.
     if GRANULARITY_ALL:
         append(TABLE_FILE, f"""\tmeasure {quote(field + ' (Current Period)')} = 
-                    VAR Granularity = SELECTEDVALUE (_DateGranularity[Date Granularity Order])
+                    VAR Granularity = SELECTEDVALUE ('_DateGranularity'[_DateGranularity Order])
                     RETURN
                         SWITCH (
                             Granularity,
@@ -382,7 +442,7 @@ def add_current_previous_period_measures(field):
                             3, CALCULATE([{field}], '{TABLE_NAME}'[_Is CAYTD])
                         )""")
         append(TABLE_FILE, f"""\tmeasure {quote(field + ' (Previous Period)')} = 
-            VAR Granularity = SELECTEDVALUE (_DateGranularity[Date Granularity Order])
+            VAR Granularity = SELECTEDVALUE ('_DateGranularity'[_DateGranularity Order])
             RETURN
                 SWITCH (
                     Granularity,
@@ -393,7 +453,7 @@ def add_current_previous_period_measures(field):
                 )""")
     else:
         append(TABLE_FILE, f"""\tmeasure {quote(field + ' (Current Period)')} = 
-                            VAR Granularity = SELECTEDVALUE (_DateGranularity[Date Granularity Order])
+                            VAR Granularity = SELECTEDVALUE ('_DateGranularity'[_DateGranularity Order])
                             RETURN
                                 SWITCH (
                                     Granularity,
@@ -404,7 +464,7 @@ def add_current_previous_period_measures(field):
                                     4, CALCULATE([{field}], '{TABLE_NAME}'[_Is CAYTD])
                                 )""")
         append(TABLE_FILE, f"""\tmeasure {quote(field + ' (Previous Period)')} = 
-                    VAR Granularity = SELECTEDVALUE (_DateGranularity[Date Granularity Order])
+                    VAR Granularity = SELECTEDVALUE ('_DateGranularity'[_DateGranularity Order])
                     RETURN
                         SWITCH (
                             Granularity,
@@ -423,7 +483,7 @@ def add_delta_measures(field: str):
         [{field} (Current Period)] - [{field} (Previous Period)]\n""")
 
     append(TABLE_FILE, f"""\tmeasure {quote(field + ' Δ%')} =
-        DIVIDE([{field} - Current Period] - [{field} (Previous Period)], [{field} (Previous Period)])\n""")
+        DIVIDE([{field} (Current Period)] - [{field} (Previous Period)], [{field} (Previous Period)])\n""")
 
 
 def process_numeric_field(field: str):
@@ -438,6 +498,7 @@ def process_numeric_field(field: str):
 # comment out parts if not needed--------------------------------------
 
 def main():
+    create_date_granularity_parameter()
     create_globals_table()
     add_date_relationship()
     add_date_in_range()
