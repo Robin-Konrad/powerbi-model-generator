@@ -37,7 +37,7 @@ GRANULARITY_ALL = True   # selector for if a 5th granularity selector All exists
 TABLES_DIR = f"{PROJECTNAME}.SemanticModel/definition/tables"
 RELATIONSHIPS_FILE = f"{PROJECTNAME}.SemanticModel/definition/relationships.tmdl"
 TABLE_FILE = f"{TABLES_DIR}/{TABLE_NAME}.tmdl"
-
+ACADEMIC_MONTH = 10
 
 
 #----------------------------------------------------------------------------------------
@@ -94,6 +94,20 @@ def create_globals_table():
 
 def create_globals_measures(globals_file):
     append(globals_file, f"\n\tmeasure {quote('_Selected Granularity')} = SELECTEDVALUE('_DateGranularity'[_DateGranularity Order], 0)\n")
+    append(globals_file, f"\tmeasure {quote('_Academic Year Start Month')} = {ACADEMIC_MONTH}\n")
+    append(globals_file, f"\tmeasure {quote('_ReportingMonth')} = EOMONTH(TODAY(), -1)\n")
+    append(globals_file, f"""\tmeasure {quote('Date (str)')} =
+        SWITCH(
+            [_Selected Granularity],
+            0, FORMAT(FIRSTDATE('_DateTable'[Date]), "MMMM YYYY"),
+            1, "Q" & FORMAT(FIRSTDATE('_DateTable'[Date]), "Q") & " " & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
+            2, FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY"),
+            3, IF(
+                MONTH(FIRSTDATE('_DateTable'[Date])) >= [Academic Year Month Start],
+                FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY") & "-" & FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), 12), "YYYY"),
+                FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), -12), "YYYY") & "-" & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY")
+            )
+        )\n""")
     append(globals_file, f"""\tmeasure {quote('Filter - Prior 25 Months')} =
         -- e.g. if current month is july 2026, returns june 2024 through june 2026
         VAR EndMonth =
@@ -115,92 +129,80 @@ def create_globals_measures(globals_file):
 
     if GRANULARITY_ALL:
         append(globals_file,f"""\tmeasure {quote('_Title - Reporting Period')} =
-        SWITCH(
-            [_Selected Granularity],
-            0, " ",
-            1, "Prior Month",
-            2, "QTD",
-            3, "YTD",
-            4, "AYTD"
-        )\n""")
+            SWITCH(
+                [_Selected Granularity],
+                0, " ",
+                1, "Prior Month",
+                2, "QTD",
+                3, "YTD",
+                4, "AYTD"
+            )\n""")
         append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period (Delta Explainer)')} =
-        SWITCH(
-            [_Selected Granularity],
-            0, " ",
-            1, "month",
-            2, "quarter",
-            3, "year to date",
-            4, "academic year to date"
-        ) &
-        " to the same " &
-        SWITCH(
-            [_Selected Granularity],
-            0, " ",
-            1, "month",
-            2, "quarter",
-            3, "year to date",
-            4, "academic year to date"
-        ) &
-        " in prior year"\n""")
+            SWITCH(
+                [_Selected Granularity],
+                0, " ",
+                1, "month",
+                2, "quarter",
+                3, "year to date",
+                4, "academic year to date"
+            ) &
+            " to the same " &
+            SWITCH(
+                [_Selected Granularity],
+                0, " ",
+                1, "month",
+                2, "quarter",
+                3, "year to date",
+                4, "academic year to date"
+            ) &
+            " in prior year"\n""")
         append(globals_file,f"""\tmeasure {quote('_Title - Reporting Period (Text Box Fmt)')} =
-        SWITCH(
-            [_Selected Granularity],
-            0, " ",
-            1, "Prior Month",
-            2, "QTD",
-            3, "YTD",
-            4, "AYTD"
-        )\n""")
+            SWITCH(
+                [_Selected Granularity],
+                0, " ",
+                1, "Prior Month",
+                2, "QTD",
+                3, "YTD",
+                4, "AYTD"
+            )\n""")
     else:
         append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period')} =
-        SWITCH(
-            [_Selected Granularity],
+            SWITCH(
+                [_Selected Granularity],
+                    0, "Prior Month",
+                    1, "QTD",
+                    2, "YTD",
+                    3, "AYTD"
+                )\n""")
+        append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period (Delta Explainer)')} =
+            SWITCH(
+                [_Selected Granularity],
+                0, "month",
+                1, "quarter",
+                2, "year to date",
+                3, "academic year to date"
+            ) &
+            " to the same " &
+            SWITCH(
+                [_Selected Granularity],
+                0, "month",
+                1, "quarter",
+                2, "year to date",
+                3, "academic year to date"
+            ) &
+            " in prior year"\n""")
+        append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period (Text Box Fmt)')} =
+            SWITCH(
+                [_Selected Granularity],
                 0, "Prior Month",
                 1, "QTD",
                 2, "YTD",
                 3, "AYTD"
             )\n""")
-        append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period (Delta Explainer)')} =
-        SWITCH(
-            [_Selected Granularity],
-            0, "month",
-            1, "quarter",
-            2, "year to date",
-            3, "academic year to date"
-        ) &
-        " to the same " &
-        SWITCH(
-            [_Selected Granularity],
-            0, "month",
-            1, "quarter",
-            2, "year to date",
-            3, "academic year to date"
-        ) &
-        " in prior year"\n""")
-        append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period (Text Box Fmt)')} =
-        SWITCH(
-            [_Selected Granularity],
-            0, "Prior Month",
-            1, "QTD",
-            2, "YTD",
-            3, "AYTD"
-        )\n""")
 
 
 
 # fixed columns and measures
-
-def add_reporting_month_measure():
-    append(TABLE_FILE, f"\tcolumn {quote('_ReportingMonth')} = EOMONTH(TODAY(), -1)\n")
-
-
-def add_academic_year_start_month(month = 10):
-    append(TABLE_FILE, f"\tcolumn {quote('_Academic Year Start Month')} = {month}\n")
-
-def add_date_str():
-    append(TABLE_FILE, f"""\tcolumn {quote('Date (str)')} =
-        FORMAT('{TABLE_NAME}'[{DATE_FIELD_NAME}], "MMMM yyyy")\n""")
-
 def add_date_in_range():
     append(TABLE_FILE, f"""\tcolumn {quote('Date In Range')} =
         VAR StartDate = DATE(
@@ -425,10 +427,6 @@ def process_numeric_field(field: str):
 def main():
     create_globals_table()
     add_date_relationship()
-
-    add_reporting_month_measure()
-    add_academic_year_start_month(10)
-    add_date_str()
     add_date_in_range()
 
     add_Is_Current_columns()
