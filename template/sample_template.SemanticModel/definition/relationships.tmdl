@@ -1,0 +1,25 @@
+relationship f6420a21-5062-4644-a849-9630129e763a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: _DateTable.Date
+	toColumn: LocalDateTable_fed8f374-34bf-4472-a1b0-bbe76ef4d5c6.Date
+
+relationship 128cbb47-1877-4bfa-bdd1-99cc57a4dd0c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: _DateTable.'Year Start'
+	toColumn: LocalDateTable_042f3156-3642-445e-a4c0-20bf46a2d686.Date
+
+relationship 9601d7c0-c78e-483c-84ec-e29134e9689e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: _DateTable.'Month Start'
+	toColumn: LocalDateTable_c446a906-769f-44af-b7e7-c85eeeac9d49.Date
+
+relationship 67028401-2fe0-45b0-942a-ba85c5d30e68
+	joinOnDateBehavior: datePartOnly
+	fromColumn: _DateTable.'Week Start'
+	toColumn: LocalDateTable_d5ab4895-dc3e-4a08-834a-11142ae2e7a6.Date
+
+relationship e7e433f4-c315-4547-aebf-2018a629b840
+	joinOnDateBehavior: datePartOnly
+	fromColumn: _DateTable.'Quarter Start'
+	toColumn: LocalDateTable_552147fe-f867-4de9-b29e-3324cef31093.Date
+

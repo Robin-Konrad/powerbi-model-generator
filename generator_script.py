@@ -1,8 +1,8 @@
 
 """
 Overview:
-    script takes a pbip project (based off sample pbip?) and a tablename,
-    and generates _globals, relationships, measures and columns
+    script takes a pbip project and a tablename,
+    and generates _globals, date granularity parameter, relationships, measures and columns
 
     this script assumes that _DateTable, _DateGranularity already exists   (as in sample template .pbip)
 
@@ -12,10 +12,6 @@ Instructions:
     -run script  (with script in same dir as the pbip files)
 
     at the end in main() simply comment out any generator funcs you do not want to run
-
-BUG:
-    any measure that refers to _DateGranularity[_DateGranularity Order] doesn't work, you have to delete that reference
-    and retype/autofill the exact same text
 """
 
 import re
@@ -25,14 +21,14 @@ import os
 # ---------------------------------------------------------------------------------------
 # CONFIG     --------------------------------------------------------------------------
 
-PROJECTNAME = "Sample Template"          # whatever is in front of .pbip in files
+PROJECTNAME = "sample_template"          # whatever is in front of .pbip in files
 
-TABLE_NAME = "Outreach Activity"           # table name as it appears in the model, e.g. "Outreach Activity"
-DATE_FIELD_NAME = "Outreach Date"      # column in TABLE_NAME that relates to _DateTable[Date]
+TABLE_NAME = "Sample Table"           # table name as it appears in the model, e.g. "Sample Table"
+DATE_FIELD_NAME = "Sample Date"      # field in TABLE_NAME table that will be used as the date
 GRANULARITY_ALL = True   # selector for if a 5th granularity selector All exists
 
-TABLES_DIR = f"{PROJECTNAME}.SemanticModel/definition/tables"
-RELATIONSHIPS_FILE = f"{PROJECTNAME}.SemanticModel/definition/relationships.tmdl"
+TABLES_DIR = f"template/{PROJECTNAME}.SemanticModel/definition/tables"
+RELATIONSHIPS_FILE = f"template/{PROJECTNAME}.SemanticModel/definition/relationships.tmdl"
 TABLE_FILE = f"{TABLES_DIR}/{TABLE_NAME}.tmdl"
 ACADEMIC_MONTH = 10
 
