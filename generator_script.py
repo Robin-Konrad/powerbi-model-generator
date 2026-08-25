@@ -484,7 +484,7 @@ def add_delta_measures(field: str):
 
 def process_numeric_field(field: str):
     rename_to_no_agg(field)
-    if field != "ID":
+    if field.upper() != "ID":
         append(TABLE_FILE, f"\tmeasure {quote(field)} = SUM({quote(TABLE_NAME)}[{field} (No Agg)])\n")
     else:
         append(TABLE_FILE, f"\tmeasure {quote(field)} = COUNT({quote(TABLE_NAME)}[{field} (No Agg)])\n")
