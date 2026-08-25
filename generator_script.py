@@ -23,9 +23,9 @@ import os
 
 PROJECTNAME = "sample_template"          # whatever is in front of .pbip in files
 
-TABLE_NAME = "Sample Table"           # table name as it appears in the model, e.g. "Sample Table"
-DATE_FIELD_NAME = "Sample Date"      # field in TABLE_NAME table that will be used as the date
-GRANULARITY_ALL = True   # selector for if a 5th granularity selector All exists
+TABLE_NAME = "sample_fact_table"           # table name as it appears in the model, e.g. "Sample Table"
+DATE_FIELD_NAME = "OrderDate"      # field in TABLE_NAME table that will be used as the date
+GRANULARITY_ALL = True          # boolean: 5th granularity selector All is needed( the data has all day month and year)
 
 TABLES_DIR = f"template/{PROJECTNAME}.SemanticModel/definition/tables"
 RELATIONSHIPS_FILE = f"template/{PROJECTNAME}.SemanticModel/definition/relationships.tmdl"
@@ -151,7 +151,6 @@ def create_globals_table():
 def create_globals_measures(globals_file):
     append(globals_file, f"\n\tmeasure {quote('_Selected Granularity')} = SELECTEDVALUE('_DateGranularity'[_DateGranularity Order], 0)\n")
     append(globals_file, f"\tmeasure {quote('_Academic Year Month Start')} = {ACADEMIC_MONTH}\n")
-    append(globals_file, f"\tmeasure {quote('_ReportingMonth')} = EOMONTH(TODAY(), -1)\n")
     append(globals_file, f"""\tmeasure {quote('Filter - Prior 25 Months')} =
         -- e.g. if current month is july 2026, returns june 2024 through june 2026
         VAR EndMonth =
@@ -272,6 +271,9 @@ def create_globals_measures(globals_file):
 
 
 # fixed columns and measures
+def add_reporting_month():
+    append(TABLE_FILE, f"\tcolumn {quote('_ReportingMonth')} = EOMONTH(TODAY(), -1)\n")
+
 def add_date_in_range():
     append(TABLE_FILE, f"""\tcolumn {quote('Date In Range')} =
         VAR StartDate = DATE(
@@ -497,6 +499,7 @@ def main():
     create_date_granularity_parameter()
     create_globals_table()
     add_date_relationship()
+    add_reporting_month()
     add_date_in_range()
 
     add_Is_Current_columns()
