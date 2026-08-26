@@ -1,0 +1,7 @@
+{
+  "project_name": "sample_template",
+  "table_name": "sample_fact_table",
+  "date_field_name": "OrderDate",
+  "granularity_all": true,
+  "academic_month": 10
+}
