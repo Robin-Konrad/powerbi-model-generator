@@ -35,9 +35,9 @@ and at least 10+ table specific DAX measures/columns.
    name, etc.).
 
 4. **Run the generator:**
-   From the `generator/` folder, run:
+   From the repository root, run:
    ```
-   python generator_script.py
+   python generator/generator_script.py
    ```
 
 5. Open the `.pbip` file again in Power BI to view the generated result.
