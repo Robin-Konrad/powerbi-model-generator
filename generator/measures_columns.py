@@ -137,6 +137,7 @@ def rename_to_no_agg(field):
     at the original power query field."""
     text = open(TABLE_FILE, encoding="utf-8").read()
 
+    # find the exact header line for the field, which could be "Column field"  or "Column 'field'"
     quoted_old = f"\tcolumn {quote(field)}"
     plain_old = f"\tcolumn {field}"
 
@@ -145,30 +146,19 @@ def rename_to_no_agg(field):
     elif plain_old in text:
         old = plain_old
     else:
-        raise ValueError(f"Column '{field}' not found in {TABLE_FILE}")
+        raise ValueError(f"Field '{field}' not found in {TABLE_FILE}")
 
-    # find this column's block: from the header line up to the next
-    # top-level column/measure declaration (or end of file)
-    start = text.index(old)
-    block_start = start + len(old)
-    next_match = re.search(r"\n\t(column|measure) ", text[block_start:])
-    block_end = block_start + next_match.start() if next_match else len(text)
-    block = text[block_start:block_end]
+    start = text.index(old)  # the index of the field's header line in the fact table .tmdl
+    block_start = start + len(old)  # the index of the beginning of the field's block (after header line)
 
     new_header = f"\tcolumn {quote(field + ' (No Agg)')}"
-    if "sourceColumn:" in block:
-        # sourceColumn already present further down in the block, don't duplicate it
-        new = new_header
-    else:
-        new = new_header + f"\n\t\tsourceColumn: {field}"
 
-    text = text[:start] + new + text[block_start:]
+    text = text[:start] + new_header + text[block_start:]
     open(TABLE_FILE, "w", encoding="utf-8").write(text)
 
 
 
 def add_current_previous_period_measures(field):
-    # TODO: paste in your existing current/previous period DAX here.
     # Branches on GRANULARITY_ALL because the definition changes depending
     # on whether "All" is a selectable granularity.
     if GRANULARITY_ALL:
