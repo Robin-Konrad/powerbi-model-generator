@@ -19,24 +19,6 @@ def create_globals_table():
 def create_globals_measures(globals_file):
     append(globals_file, f"\n\tmeasure {quote('_Selected Granularity')} = SELECTEDVALUE('_DateGranularity'[_DateGranularity Order], 0)\n")
     append(globals_file, f"\tmeasure {quote('_Academic Year Month Start')} = {ACADEMIC_MONTH}\n")
-    append(globals_file, f"""\tmeasure {quote('Filter - Prior 25 Months')} =
-        -- e.g. if current month is july 2026, returns june 2024 through june 2026
-        VAR EndMonth =
-            DATE(
-                YEAR(EOMONTH(TODAY(), -1)),
-                MONTH(EOMONTH(TODAY(), -1)),
-                1
-            )
-        VAR StartMonth =
-            EDATE(EndMonth, -24)
-        VAR MonthInScope =
-            MAX(_DateTable[Month Start])
-        RETURN
-            IF(
-                MonthInScope >= StartMonth
-                    && MonthInScope <= EndMonth,
-                1
-            )\n""")
 
     if GRANULARITY_ALL:
         append(globals_file, f"""\tmeasure {quote('Date (str)')} =
