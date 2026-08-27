@@ -1,7 +1,19 @@
 from core import *
 
-# creating _DateGranularity parameter
 def create_date_granularity_parameter():
+    """
+        Creates the "_DateGranularity" parameter table.
+
+        Branches based of the GRANULARITY_ALL boolean:
+            If True it adds "ALL" option to granularity selectors.
+            If False it "All" is not added.
+
+        Parameter acts as a selector switch (Month/Quarter/Year/Academic Year, and optionally All)
+        to filter visuals.
+
+        :param:             None
+        :return:            None
+    """
     items = []
     if GRANULARITY_ALL:
         items.append(("All", "Week Start"))

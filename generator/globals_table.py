@@ -1,8 +1,12 @@
 from core import *
 
-# --------------------------------------------------------------------------------------------------------------
-# create _Globals table and measures/columns-----------------------------------------------------------------
 def create_globals_table():
+    """
+        Creates an empty "_Globals" calculated table, and adds fixed set of global measures.
+
+        :param:             None
+        :return:            None
+    """
     globals_file = f"{TABLES_DIR}/_Globals.tmdl"
 
     content = """table _Globals
@@ -17,6 +21,21 @@ def create_globals_table():
     create_globals_measures(globals_file)
 
 def create_globals_measures(globals_file):
+    """
+        Creates fixed set of measures to the _Globals table.
+
+        Fixed set of global measure includes '_Selected Granularity', '_Academic Year Month Start', 'Date (str)',
+        '_Title - Reporting Period', '_Title - Reporting Period (Delta Explainer)',
+        '_Title - Reporting Period (Text Box Fmt)', and '_Title - Latest Reporting Period (str)'.
+
+        DAX logic for global measure branches based of the GRANULARITY_ALL boolean:
+            If True it adds logic for granularity "All" selector.
+            If False it doesn't add logic for granularity "All" selector.
+
+
+        :param globals_file:   str, required        path of the _Globals .tmdl table file to add measures to.
+        :return:               None
+        """
     append(globals_file, f"\n\tmeasure {quote('_Selected Granularity')} = SELECTEDVALUE('_DateGranularity'[_DateGranularity Order], 0)\n")
     append(globals_file, f"\tmeasure {quote('_Academic Year Month Start')} = {ACADEMIC_MONTH}\n")
 

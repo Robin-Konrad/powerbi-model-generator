@@ -1,28 +1,19 @@
-
-"""
-Overview:
-    script takes a pbip project and a tablename,
-    and generates _globals, date granularity parameter, relationships, measures and columns
-
-    this script assumes that _DateTable, _DateGranularity already exists   (as in sample template .pbip)
-
-Instructions:
-    -start up a new emtpy sample template .pbip and import the table you want
-    -set up config below with the project and the table names
-    -run script  (with script in same dir as the pbip files)
-
-    at the end in main() simply comment out any generator funcs you do not want to run
-"""
-
 import os
 from core import *
 from measures_columns import add_fixed_measures_columns
 from globals_table import create_globals_table
 from granularity_parameter import create_date_granularity_parameter
 
-# creating relationship  -----------------------------------------
 def add_date_relationship():
-    """create relationship between date table date and specified date field"""
+    """
+    Creates a relationship between _DateTable date and the fact table's specified
+    date field.
+
+    Requires a fact table and a date field to be specified in the config file.
+
+    :param:             None
+    :return:            None
+    """
     relationship_name = f"{TABLE_NAME}-Date"
     text = (
         f"relationship {quote(relationship_name)}\n"
@@ -32,11 +23,16 @@ def add_date_relationship():
     append(RELATIONSHIPS_FILE, text)
 
 
-# RUNNING--------------------------
-# comment out parts if not needed--------------------------------------
-
 def main():
+    """
+        Runs the full generator pipeline.
 
+        Validates the fact table exists, then generates the date granularity parameter, globals table,
+        date relationship, and all the fixed measures/columns.
+
+        :param:             None
+        :return:            None
+    """
     if not os.path.exists(TABLE_FILE):
         raise FileNotFoundError(
             f"{TABLE_FILE} not found check that TABLE_NAME is set to correct value in config "
@@ -47,7 +43,7 @@ def main():
     add_date_relationship()
     add_fixed_measures_columns()
 
-    print(f"Done. Review {TABLE_FILE} and {RELATIONSHIPS_FILE}, then open the .pbip in Desktop.")
+    print(f"Script finished running. open the .pbip in Power Bi to see the results")
 
 
 if __name__ == "__main__":

@@ -1,23 +1,51 @@
 from core import *
 import re
 
-# fixed columns and measures
+
+NUMERIC_TYPES = ("int64", "double", "decimal") # the data types that find_numeric_fields() will classify as numeric
+
 def add_fixed_measures_columns():
+    """
+    Runs the pipeline for creation of the fixed columns and measures for every fact able.
+
+    Creates _ReportingMonth, Date in Range, is_current/previous period flags, and for each numeric field renames it
+    "field (No Agg)" and creates a SUM/COUNT measure, current/previous period measures, and delta measures.
+
+    :param:             None
+    :return:            None
+    """
     add_reporting_month()
     add_date_in_range()
 
     add_is_current_columns()
     add_is_previous_columns()
 
-    for field in find_numeric_columns():
+    for field in find_numeric_fields():
         process_numeric_field(field)                   # rename field to No Agg, and create a new SUM/COUNT measure
         add_current_previous_period_measures(field)    # create (current period) and (previous period) measures
         add_delta_measures(field)                      # create Δ and Δ% measures
 
 def add_reporting_month():
+    """
+    Creates a "_ReportingMonth" column which represents to the last day of the previous month.
+
+    This is used as the latest reporting period, and is used in current and previous period calculations.
+
+    :param:             None
+    :return:            None
+    """
     append(TABLE_FILE, f"\tcolumn {quote('_ReportingMonth')} = EOMONTH(TODAY(), -1)\n")
 
+
 def add_date_in_range():
+    """
+    Creates a "Date In Range" column which represents all dates in the previous 24 months.
+
+    The column is used to filter dates to the relevant date range.
+
+    :param:             None
+    :return:            None
+    """
     append(TABLE_FILE, f"""\tcolumn {quote('Date In Range')} =
         VAR StartDate = DATE(
             YEAR(EDATE(TODAY(), -24)),
@@ -35,6 +63,17 @@ def add_date_in_range():
         )\n""")
 
 def add_is_current_columns():
+    """
+    Creates "is current period" flag columns for month, quarter, year, and academic year periods.
+
+    These return for each row a boolean representing if that rows date is within the current period.
+
+    eg: _Is CPM (current period month) returns True if the rows date is withing the current month reporting period,
+    and returns False otherwise.
+
+    :param:             None
+    :return:            None
+    """
     append(TABLE_FILE, f"""\tcolumn {quote('_Is CAYTD')} =
         VAR ReportDate = [_ReportingMonth]
         VAR StartMonth = [_Academic Year Month Start]
@@ -74,6 +113,18 @@ def add_is_current_columns():
 
 
 def add_is_previous_columns():
+    """
+        Creates "is previous year period" flag columns for month, quarter, year, and academic year periods.
+
+        These return for each row a boolean representing if that rows date is within the previous year's instance
+        of the current period.
+
+        eg: _Is PYPM (previous year period month) returns True if the row's date is within the previous year's
+        month that matches the current period's month, and returns False otherwise.
+
+        :param:             None
+        :return:            None
+    """
     append(TABLE_FILE, f"""\tcolumn {quote('_Is PYAYTD')} =
         VAR ReportDate = [_ReportingMonth]
         VAR PYReportDate = EDATE(ReportDate, -12)
@@ -119,22 +170,26 @@ def add_is_previous_columns():
             '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= PYReportDate\n""")
 
 
-# ---------------------------------------------------------------------------
-# per-numeric-field measures: rename to (No Agg), add Sum + period measures
+def find_numeric_fields():
+    """
+    Searches the fact table tmdl file for lines beginning with "column X" and returns the names of all the columns
+    which have a data type that matches one of the NUMERIC_TYPES.
 
-
-NUMERIC_TYPES = ("int64", "double", "decimal")
-
-def find_numeric_columns():
-    """scans table file for `column X` blocks with a numeric dataType."""
+    :param:             None
+    :return:            list            string names of columns with a numeric data type
+    """
     text = open(TABLE_FILE).read()
     pattern = r"\tcolumn (?:'([^']+)'|(\S+))\n\t\tdataType: (?:" + "|".join(NUMERIC_TYPES) + ")"
     return [quoted or plain for quoted, plain, *_ in re.findall(pattern, text)]
 
 
 def rename_to_no_agg(field):
-    """rename column to  from 'field' to 'field (No Agg)', keeping sourceColumn pointed
-    at the original power query field."""
+    """
+    Renames a field from "field" to "field (No Agg)" in the fact table .tmdl file.
+
+    :param field:       str, required        name of the field to rename
+    :return:            None
+    """
     text = open(TABLE_FILE, encoding="utf-8").read()
 
     # find the exact header line for the field, which could be "Column field"  or "Column 'field'"
@@ -148,8 +203,8 @@ def rename_to_no_agg(field):
     else:
         raise ValueError(f"Field '{field}' not found in {TABLE_FILE}")
 
-    start = text.index(old)  # the index of the field's header line in the fact table .tmdl
-    block_start = start + len(old)  # the index of the beginning of the field's block (after header line)
+    start = text.index(old)             # the index of the field's header line in the fact table .tmdl
+    block_start = start + len(old)      # the index of the beginning of the field's block (after header line)
 
     new_header = f"\tcolumn {quote(field + ' (No Agg)')}"
 
@@ -159,8 +214,19 @@ def rename_to_no_agg(field):
 
 
 def add_current_previous_period_measures(field):
-    # Branches on GRANULARITY_ALL because the definition changes depending
-    # on whether "All" is a selectable granularity.
+    """
+        Creates "field (Current Period)" and "field (Previous Period)" measures for a field.
+
+        Branches on GRANULARITY_ALL boolean:
+            if True selected granularity 0 represents "All" and should return all rows for current period and
+            blank for the previous period as there is no previous ALL period possible.
+
+            if False selected granularity 0 represents "Month" which returns all current month period (IS_CPM)
+            rows for current period and returns all previous year month (Is_PYPM) rows for previous period.
+
+        :param field:       str, required        name of the field to create period measures for
+        :return:            None
+    """
     if GRANULARITY_ALL:
         append(TABLE_FILE, f"""\tmeasure {quote(field + ' (Current Period)')} = 
                     VAR Granularity = SELECTEDVALUE ('_DateGranularity'[_DateGranularity Order])
@@ -207,9 +273,17 @@ def add_current_previous_period_measures(field):
                         )""")
 
 
+def add_delta_measures(field):
+    """
+        Creates "field Δ" and "field Δ%" measures for a field.
 
+        "field Δ" represents the difference from the previous period to the current period.
+        "field Δ%" represents the percentage difference.from the previous period to the current period.
 
-def add_delta_measures(field: str):
+        :param field:       str, required        name of the field measure the delta measures are based off
+        :return:            None
+    """
+
     append(TABLE_FILE, f"""\tmeasure {quote(field + ' Δ')} = 
         [{field} (Current Period)] - [{field} (Previous Period)]\n""")
 
@@ -217,7 +291,16 @@ def add_delta_measures(field: str):
         DIVIDE([{field} (Current Period)] - [{field} (Previous Period)], [{field} (Previous Period)])\n""")
 
 
-def process_numeric_field(field: str):
+def process_numeric_field(field):
+    """
+        Processes a numeric field by renames it to "field (No Agg)" and creating an aggregation measure for the field.
+
+        Required field to be of a numeric type data field.
+        Uses COUNT aggregation for an id field and SUM for all others.
+
+        :param field:       str, required        name of the numeric column to process
+        :return:            None
+    """
     rename_to_no_agg(field)
     if field.upper() != "ID":
         append(TABLE_FILE, f"\tmeasure {quote(field)} = SUM({quote(TABLE_NAME)}[{field} (No Agg)])\n")

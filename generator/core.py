@@ -1,5 +1,3 @@
-# ---------------------------------------------------------------------------------------
-# CONFIG     --------------------------------------------------------------------------
 import json
 
 with open("../config.json") as f:
@@ -17,10 +15,22 @@ TABLE_FILE = f"{TABLES_DIR}/{TABLE_NAME}.tmdl"
 
 # helper functions
 def quote(name):
-    """wrap name in single quotes as otherwise names with spaces etc will break it"""
+    """
+    Wraps a name string in single quotes so it's always a valid identifier in tmdl, as it's required
+    for column/measure names containing spaces or special characters.
+
+    :param name:        str, required        name of a column or measure
+    :return:            str                  name param wrapped inside single quotes
+    """
     return f"'{name}'"
 
 def append(path, text):
-    """append text to a file with new lines separation"""
+    """
+    Appends text to a file followed by a newline.
+
+    :param path:        str, required        path of the file to append to
+    :param text:        str, required        the text that will be appended
+    :return:            None
+    """
     with open(path, "a", encoding="utf-8") as f:
         f.write(text + "\n")
