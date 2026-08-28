@@ -1,4 +1,4 @@
-from core import *
+import generator.core as core
 import re
 
 
@@ -34,7 +34,7 @@ def add_reporting_month():
     :param:             None
     :return:            None
     """
-    append(TABLE_FILE, f"\tcolumn {quote('_ReportingMonth')} = EOMONTH(TODAY(), -1)\n")
+    core.append(core.TABLE_FILE, f"\tcolumn {core.quote('_ReportingMonth')} = EOMONTH(TODAY(), -1)\n")
 
 
 def add_date_in_range():
@@ -46,7 +46,7 @@ def add_date_in_range():
     :param:             None
     :return:            None
     """
-    append(TABLE_FILE, f"""\tcolumn {quote('Date In Range')} =
+    core.append(core.TABLE_FILE, f"""\tcolumn {core.quote('Date In Range')} =
         VAR StartDate = DATE(
             YEAR(EDATE(TODAY(), -24)),
             MONTH(EDATE(TODAY(), -24)),
@@ -56,8 +56,8 @@ def add_date_in_range():
 
         RETURN
         IF(
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= StartDate &&
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= EndDate,
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] >= StartDate &&
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] <= EndDate,
             1,
             0
         )\n""")
@@ -74,7 +74,7 @@ def add_is_current_columns():
     :param:             None
     :return:            None
     """
-    append(TABLE_FILE, f"""\tcolumn {quote('_Is CAYTD')} =
+    core.append(core.TABLE_FILE, f"""\tcolumn {core.quote('_Is CAYTD')} =
         VAR ReportDate = [_ReportingMonth]
         VAR StartMonth = [_Academic Year Month Start]
 
@@ -86,14 +86,14 @@ def add_is_current_columns():
             )
 
         RETURN
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= AcademicYearStart &&
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= ReportDate\n""")
-    append(TABLE_FILE, f"""\tcolumn {quote('_Is CPM')} = 
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] >= AcademicYearStart &&
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] <= ReportDate\n""")
+    core.append(core.TABLE_FILE, f"""\tcolumn {core.quote('_Is CPM')} = 
         VAR ReportDate = EOMONTH(TODAY(), -1)
-        VAR FactDate = EOMONTH('{TABLE_NAME}'[{DATE_FIELD_NAME}], 0) 
+        VAR FactDate = EOMONTH('{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}], 0) 
 
         RETURN FactDate = ReportDate\n""")
-    append(TABLE_FILE, f"""\tcolumn {quote('_Is CQTD')} = 
+    core.append(core.TABLE_FILE, f"""\tcolumn {core.quote('_Is CQTD')} = 
         VAR ReportDate = [_ReportingMonth]
         VAR QuarterStart =
             DATE(
@@ -102,13 +102,13 @@ def add_is_current_columns():
                 1
             )
         RETURN
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= QuarterStart &&
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= ReportDate\n""")
-    append(TABLE_FILE, f"""\tcolumn {quote('_Is CYTD')} = 
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] >= QuarterStart &&
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] <= ReportDate\n""")
+    core.append(core.TABLE_FILE, f"""\tcolumn {core.quote('_Is CYTD')} = 
         VAR ReportDate = [_ReportingMonth]
         RETURN
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= DATE(YEAR(ReportDate), 1, 1) &&
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= ReportDate\n""")
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] >= DATE(YEAR(ReportDate), 1, 1) &&
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] <= ReportDate\n""")
 
 
 
@@ -125,7 +125,7 @@ def add_is_previous_columns():
         :param:             None
         :return:            None
     """
-    append(TABLE_FILE, f"""\tcolumn {quote('_Is PYAYTD')} =
+    core.append(core.TABLE_FILE, f"""\tcolumn {core.quote('_Is PYAYTD')} =
         VAR ReportDate = [_ReportingMonth]
         VAR PYReportDate = EDATE(ReportDate, -12)
 
@@ -139,15 +139,15 @@ def add_is_previous_columns():
             )
 
         RETURN
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= AcademicYearStart &&
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= PYReportDate\n""")
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] >= AcademicYearStart &&
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] <= PYReportDate\n""")
 
-    append(TABLE_FILE, f"""\tcolumn {quote('_Is PYPM')} = 
+    core.append(core.TABLE_FILE, f"""\tcolumn {core.quote('_Is PYPM')} = 
         VAR ReportDate = [_ReportingMonth]
         VAR PYReportDate = EDATE(ReportDate, -12)
 
-        RETURN EOMONTH('{TABLE_NAME}'[{DATE_FIELD_NAME}], 0) = EOMONTH(PYReportDate, 0)\n""")
-    append(TABLE_FILE, f"""\tcolumn {quote('_Is PYQTD')} = 
+        RETURN EOMONTH('{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}], 0) = EOMONTH(PYReportDate, 0)\n""")
+    core.append(core.TABLE_FILE, f"""\tcolumn {core.quote('_Is PYQTD')} = 
         VAR ReportDate = [_ReportingMonth]
         VAR PYReportDate = EDATE(ReportDate, -12)
 
@@ -159,15 +159,15 @@ def add_is_previous_columns():
             )
 
         RETURN
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= QuarterStart &&
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= PYReportDate\n""")
-    append(TABLE_FILE, f"""\tcolumn {quote('_Is PYYTD')} = 
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] >= QuarterStart &&
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] <= PYReportDate\n""")
+    core.append(core.TABLE_FILE, f"""\tcolumn {core.quote('_Is PYYTD')} = 
         VAR ReportDate = [_ReportingMonth]
         VAR PYReportDate = EDATE(ReportDate, -12)
 
         RETURN
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] >= DATE(YEAR(PYReportDate), 1, 1) &&
-            '{TABLE_NAME}'[{DATE_FIELD_NAME}] <= PYReportDate\n""")
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] >= DATE(YEAR(PYReportDate), 1, 1) &&
+            '{core.TABLE_NAME}'[{core.DATE_FIELD_NAME}] <= PYReportDate\n""")
 
 
 def find_numeric_fields():
@@ -178,7 +178,7 @@ def find_numeric_fields():
     :param:             None
     :return:            list            string names of columns with a numeric data type
     """
-    text = open(TABLE_FILE).read()
+    text = open(core.TABLE_FILE).read()
     pattern = r"\tcolumn (?:'([^']+)'|(\S+))\n\t\tdataType: (?:" + "|".join(NUMERIC_TYPES) + ")"
     return [quoted or plain for quoted, plain, *_ in re.findall(pattern, text)]
 
@@ -190,10 +190,10 @@ def rename_to_no_agg(field):
     :param field:       str, required        name of the field to rename
     :return:            None
     """
-    text = open(TABLE_FILE, encoding="utf-8").read()
+    text = open(core.TABLE_FILE, encoding="utf-8").read()
 
     # find the exact header line for the field, which could be "Column field"  or "Column 'field'"
-    quoted_old = f"\tcolumn {quote(field)}"
+    quoted_old = f"\tcolumn {core.quote(field)}"
     plain_old = f"\tcolumn {field}"
 
     if quoted_old in text:
@@ -201,15 +201,15 @@ def rename_to_no_agg(field):
     elif plain_old in text:
         old = plain_old
     else:
-        raise ValueError(f"Field '{field}' not found in {TABLE_FILE}")
+        raise ValueError(f"Field '{field}' not found in {core.TABLE_FILE}")
 
     start = text.index(old)             # the index of the field's header line in the fact table .tmdl
     block_start = start + len(old)      # the index of the beginning of the field's block (after header line)
 
-    new_header = f"\tcolumn {quote(field + ' (No Agg)')}"
+    new_header = f"\tcolumn {core.quote(field + ' (No Agg)')}"
 
     text = text[:start] + new_header + text[block_start:]
-    open(TABLE_FILE, "w", encoding="utf-8").write(text)
+    open(core.TABLE_FILE, "w", encoding="utf-8").write(text)
 
 
 
@@ -227,49 +227,49 @@ def add_current_previous_period_measures(field):
         :param field:       str, required        name of the field to create period measures for
         :return:            None
     """
-    if GRANULARITY_ALL:
-        append(TABLE_FILE, f"""\tmeasure {quote(field + ' (Current Period)')} = 
+    if core.GRANULARITY_ALL:
+        core.append(core.TABLE_FILE, f"""\tmeasure {core.quote(field + ' (Current Period)')} = 
                     VAR Granularity = SELECTEDVALUE ('_DateGranularity'[_DateGranularity Order])
                     RETURN
                         SWITCH (
                             Granularity,
-                            0, CALCULATE([{field}], '{TABLE_NAME}'[_Is CPM]),
-                            1, CALCULATE([{field}], '{TABLE_NAME}'[_Is CQTD]),
-                            2, CALCULATE([{field}], '{TABLE_NAME}'[_Is CYTD]),
-                            3, CALCULATE([{field}], '{TABLE_NAME}'[_Is CAYTD])
+                            0, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is CPM]),
+                            1, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is CQTD]),
+                            2, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is CYTD]),
+                            3, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is CAYTD])
                         )""")
-        append(TABLE_FILE, f"""\tmeasure {quote(field + ' (Previous Period)')} = 
+        core.append(core.TABLE_FILE, f"""\tmeasure {core.quote(field + ' (Previous Period)')} = 
             VAR Granularity = SELECTEDVALUE ('_DateGranularity'[_DateGranularity Order])
             RETURN
                 SWITCH (
                     Granularity,
-                    0, CALCULATE([{field}], '{TABLE_NAME}'[_Is PYPM]),
-                    1, CALCULATE([{field}], '{TABLE_NAME}'[_Is PYQTD]),
-                    2, CALCULATE([{field}], '{TABLE_NAME}'[_Is PYYTD]),
-                    3, CALCULATE([{field}], '{TABLE_NAME}'[_Is PYAYTD])
+                    0, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is PYPM]),
+                    1, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is PYQTD]),
+                    2, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is PYYTD]),
+                    3, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is PYAYTD])
                 )""")
     else:
-        append(TABLE_FILE, f"""\tmeasure {quote(field + ' (Current Period)')} = 
+        core.append(core.TABLE_FILE, f"""\tmeasure {core.quote(field + ' (Current Period)')} = 
                             VAR Granularity = SELECTEDVALUE ('_DateGranularity'[_DateGranularity Order])
                             RETURN
                                 SWITCH (
                                     Granularity,
                                     0, [{field}]
-                                    1, CALCULATE([{field}], '{TABLE_NAME}'[_Is CPM]),
-                                    2, CALCULATE([{field}], '{TABLE_NAME}'[_Is CQTD]),
-                                    3, CALCULATE([{field}], '{TABLE_NAME}'[_Is CYTD]),
-                                    4, CALCULATE([{field}], '{TABLE_NAME}'[_Is CAYTD])
+                                    1, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is CPM]),
+                                    2, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is CQTD]),
+                                    3, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is CYTD]),
+                                    4, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is CAYTD])
                                 )""")
-        append(TABLE_FILE, f"""\tmeasure {quote(field + ' (Previous Period)')} = 
+        core.append(core.TABLE_FILE, f"""\tmeasure {core.quote(field + ' (Previous Period)')} = 
                     VAR Granularity = SELECTEDVALUE ('_DateGranularity'[_DateGranularity Order])
                     RETURN
                         SWITCH (
                             Granularity,
                             0, BLANK(),
-                            1, CALCULATE([{field}], '{TABLE_NAME}'[_Is PYPM]),
-                            2, CALCULATE([{field}], '{TABLE_NAME}'[_Is PYQTD]),
-                            3, CALCULATE([{field}], '{TABLE_NAME}'[_Is PYYTD]),
-                            4, CALCULATE([{field}], '{TABLE_NAME}'[_Is PYAYTD])
+                            1, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is PYPM]),
+                            2, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is PYQTD]),
+                            3, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is PYYTD]),
+                            4, CALCULATE([{field}], '{core.TABLE_NAME}'[_Is PYAYTD])
                         )""")
 
 
@@ -284,10 +284,10 @@ def add_delta_measures(field):
         :return:            None
     """
 
-    append(TABLE_FILE, f"""\tmeasure {quote(field + ' Δ')} = 
+    core.append(core.TABLE_FILE, f"""\tmeasure {core.quote(field + ' Δ')} = 
         [{field} (Current Period)] - [{field} (Previous Period)]\n""")
 
-    append(TABLE_FILE, f"""\tmeasure {quote(field + ' Δ%')} =
+    core.append(core.TABLE_FILE, f"""\tmeasure {core.quote(field + ' Δ%')} =
         DIVIDE([{field} (Current Period)] - [{field} (Previous Period)], [{field} (Previous Period)])\n""")
 
 
@@ -303,6 +303,6 @@ def process_numeric_field(field):
     """
     rename_to_no_agg(field)
     if field.upper() != "ID":
-        append(TABLE_FILE, f"\tmeasure {quote(field)} = SUM({quote(TABLE_NAME)}[{field} (No Agg)])\n")
+        core.append(core.TABLE_FILE, f"\tmeasure {core.quote(field)} = SUM({core.quote(core.TABLE_NAME)}[{field} (No Agg)])\n")
     else:
-        append(TABLE_FILE, f"\tmeasure {quote(field)} = COUNT({quote(TABLE_NAME)}[{field} (No Agg)])\n")
+        core.append(core.TABLE_FILE, f"\tmeasure {core.quote(field)} = COUNT({core.quote(core.TABLE_NAME)}[{field} (No Agg)])\n")

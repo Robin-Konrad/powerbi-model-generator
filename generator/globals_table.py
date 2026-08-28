@@ -1,4 +1,4 @@
-from core import *
+import generator.core as core
 
 def create_globals_table():
     """
@@ -7,7 +7,7 @@ def create_globals_table():
         :param:             None
         :return:            None
     """
-    globals_file = f"{TABLES_DIR}/_Globals.tmdl"
+    globals_file = f"{core.TABLES_DIR}/_Globals.tmdl"
 
     content = """table _Globals
     partition _Globals = calculated
@@ -36,11 +36,11 @@ def create_globals_measures(globals_file):
         :param globals_file:   str, required        path of the _Globals .tmdl table file to add measures to.
         :return:               None
         """
-    append(globals_file, f"\n\tmeasure {quote('_Selected Granularity')} = SELECTEDVALUE('_DateGranularity'[_DateGranularity Order], 0)\n")
-    append(globals_file, f"\tmeasure {quote('_Academic Year Month Start')} = {ACADEMIC_MONTH}\n")
+    core.append(globals_file, f"\n\tmeasure {core.quote('_Selected Granularity')} = SELECTEDVALUE('_DateGranularity'[_DateGranularity Order], 0)\n")
+    core.append(globals_file, f"\tmeasure {core.quote('_Academic Year Month Start')} = {core.ACADEMIC_MONTH}\n")
 
-    if GRANULARITY_ALL:
-        append(globals_file, f"""\tmeasure {quote('Date (str)')} =
+    if core.GRANULARITY_ALL:
+        core.append(globals_file, f"""\tmeasure {core.quote('Date (str)')} =
             SWITCH(
                 [_Selected Granularity],
                 0, FORMAT(FIRSTDATE('_DateTable'[Date]), "MMMM YYYY"),
@@ -53,7 +53,7 @@ def create_globals_measures(globals_file):
                     FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), -12), "YYYY") & "-" & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY")
                 )
             )\n""")
-        append(globals_file ,f"""\tmeasure {quote('_Title - Reporting Period')} =
+        core.append(globals_file ,f"""\tmeasure {core.quote('_Title - Reporting Period')} =
             SWITCH(
                 [_Selected Granularity],
                 0, " ",
@@ -62,7 +62,7 @@ def create_globals_measures(globals_file):
                 3, "YTD",
                 4, "AYTD"
             )\n""")
-        append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period (Delta Explainer)')} =
+        core.append(globals_file, f"""\tmeasure {core.quote('_Title - Reporting Period (Delta Explainer)')} =
             SWITCH(
                 [_Selected Granularity],
                 0, " ",
@@ -81,7 +81,7 @@ def create_globals_measures(globals_file):
                 4, "academic year to date"
             ) &
             " in prior year"\n""")
-        append(globals_file ,f"""\tmeasure {quote('_Title - Reporting Period (Text Box Fmt)')} =
+        core.append(globals_file ,f"""\tmeasure {core.quote('_Title - Reporting Period (Text Box Fmt)')} =
             SWITCH(
                 [_Selected Granularity],
                 0, " ",
@@ -90,7 +90,7 @@ def create_globals_measures(globals_file):
                 3, "YTD",
                 4, "AYTD"
             )\n""")
-        append(globals_file, f"""\tmeasure {quote('_Title - Latest Reporting Period (str)')} =
+        core.append(globals_file, f"""\tmeasure {core.quote('_Title - Latest Reporting Period (str)')} =
             SWITCH(
                 [_Selected Granularity],
                 0, "all",
@@ -100,7 +100,7 @@ def create_globals_measures(globals_file):
                 4, "academic YTD"
             )\n""")
     else:
-        append(globals_file, f"""\tmeasure {quote('Date (str)')} =
+        core.append(globals_file, f"""\tmeasure {core.quote('Date (str)')} =
             SWITCH(
                 [_Selected Granularity],
                 0, FORMAT(FIRSTDATE('_DateTable'[Date]), "MMMM YYYY"),
@@ -112,7 +112,7 @@ def create_globals_measures(globals_file):
                     FORMAT(EDATE(FIRSTDATE('_DateTable'[Date]), -12), "YYYY") & "-" & FORMAT(FIRSTDATE('_DateTable'[Date]), "YYYY")
                 )
             )\n""")
-        append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period')} =
+        core.append(globals_file, f"""\tmeasure {core.quote('_Title - Reporting Period')} =
             SWITCH(
                 [_Selected Granularity],
                     0, "Prior Month",
@@ -120,7 +120,7 @@ def create_globals_measures(globals_file):
                     2, "YTD",
                     3, "AYTD"
                 )\n""")
-        append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period (Delta Explainer)')} =
+        core.append(globals_file, f"""\tmeasure {core.quote('_Title - Reporting Period (Delta Explainer)')} =
             SWITCH(
                 [_Selected Granularity],
                 0, "month",
@@ -137,7 +137,7 @@ def create_globals_measures(globals_file):
                 3, "academic year to date"
             ) &
             " in prior year"\n""")
-        append(globals_file, f"""\tmeasure {quote('_Title - Reporting Period (Text Box Fmt)')} =
+        core. append(globals_file, f"""\tmeasure {core.quote('_Title - Reporting Period (Text Box Fmt)')} =
             SWITCH(
                 [_Selected Granularity],
                 0, "Prior Month",
@@ -145,7 +145,7 @@ def create_globals_measures(globals_file):
                 2, "YTD",
                 3, "AYTD"
             )\n""")
-        append(globals_file, f"""\tmeasure {quote('_Title - Latest Reporting Period (str)')} =
+        core.append(globals_file, f"""\tmeasure {core.quote('_Title - Latest Reporting Period (str)')} =
             SWITCH(
                 [_Selected Granularity],
                 0, "month",

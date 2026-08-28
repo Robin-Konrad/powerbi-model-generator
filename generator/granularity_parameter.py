@@ -1,5 +1,4 @@
-from core import *
-
+import generator.core as core
 def create_date_granularity_parameter():
     """
         Creates the "_DateGranularity" parameter table.
@@ -15,7 +14,7 @@ def create_date_granularity_parameter():
         :return:            None
     """
     items = []
-    if GRANULARITY_ALL:
+    if core.GRANULARITY_ALL:
         items.append(("All", "Week Start"))
     items += [
         ("Month", "Month Start"),
@@ -26,7 +25,7 @@ def create_date_granularity_parameter():
 
     item_rows = []   # get the exact row string for each item to put inside full tmdl template string
     for i, (label, col) in enumerate(items):
-        item_rows.append(f'("{label}", NAMEOF({quote("_DateTable")}[{col}]), {i})')
+        item_rows.append(f'("{label}", NAMEOF({core.quote("_DateTable")}[{col}]), {i})')
 
     rows = ",\n\t\t\t\t".join(item_rows)  # add correct indentation
 
@@ -73,6 +72,6 @@ def create_date_granularity_parameter():
 """
     content = template.format(rows=rows)
 
-    with open(f"{TABLES_DIR}/_DateGranularity.tmdl", "w", encoding="utf-8") as f:
+    with open(f"{core.TABLES_DIR}/_DateGranularity.tmdl", "w", encoding="utf-8") as f:
         f.write(content)
 

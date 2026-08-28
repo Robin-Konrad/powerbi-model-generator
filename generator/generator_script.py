@@ -1,5 +1,5 @@
 import os
-from core import *
+import generator.core as core
 from measures_columns import add_fixed_measures_columns
 from globals_table import create_globals_table
 from granularity_parameter import create_date_granularity_parameter
@@ -14,13 +14,13 @@ def add_date_relationship():
     :param:             None
     :return:            None
     """
-    relationship_name = f"{TABLE_NAME}-Date"
+    relationship_name = f"{core.TABLE_NAME}-Date"
     text = (
-        f"relationship {quote(relationship_name)}\n"
-        f"\tfromColumn: {quote(TABLE_NAME)}.{quote(DATE_FIELD_NAME)}\n"
+        f"relationship {core.quote(relationship_name)}\n"
+        f"\tfromColumn: {core.quote(core.TABLE_NAME)}.{core.quote(core.DATE_FIELD_NAME)}\n"
         f"\ttoColumn: _DateTable.Date"
     )
-    append(RELATIONSHIPS_FILE, text)
+    core.append(core.RELATIONSHIPS_FILE, text)
 
 
 def main():
@@ -33,9 +33,9 @@ def main():
         :param:             None
         :return:            None
     """
-    if not os.path.exists(TABLE_FILE):
+    if not os.path.exists(core.TABLE_FILE):
         raise FileNotFoundError(
-            f"{TABLE_FILE} not found check that TABLE_NAME is set to correct value in config "
+            f"{core.TABLE_FILE} not found check that TABLE_NAME is set to correct value in config "
         )
 
     create_date_granularity_parameter()
