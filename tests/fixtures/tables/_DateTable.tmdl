@@ -1,0 +1,266 @@
+table _DateTable
+	lineageTag: 98322693-1b8e-4c95-be7c-c73aec981e51
+
+	column Date
+		formatString: General Date
+		lineageTag: 4642db2e-4681-4188-b7c6-29738f59008c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		variation Variation
+			isDefault
+			relationship: f6420a21-5062-4644-a849-9630129e763a
+			defaultHierarchy: LocalDateTable_fed8f374-34bf-4472-a1b0-bbe76ef4d5c6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		formatString: 0
+		lineageTag: 20d77706-0bf9-4900-9588-b5fa8768d5b6
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Start'
+		formatString: General Date
+		lineageTag: b6ea58ca-fb10-4351-a7e9-73b1ebee379a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Start]
+
+		variation Variation
+			isDefault
+			relationship: 128cbb47-1877-4bfa-bdd1-99cc57a4dd0c
+			defaultHierarchy: LocalDateTable_042f3156-3642-445e-a4c0-20bf46a2d686.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Label'
+		lineageTag: 2153bb9a-788f-4fa8-966a-b0d3e1240f3a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Label]
+		sortByColumn: YearLabelSort
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearLabelSort
+		formatString: 0
+		lineageTag: b0e0b6c8-ad0d-46b1-a8eb-76894eac97d4
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [YearLabelSort]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Number'
+		formatString: 0
+		lineageTag: f5ac597e-81f5-467b-80a1-d03105a41207
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Month Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name'
+		lineageTag: 6c19d3ab-9d86-45fa-a39d-9c299f3dd202
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Short'
+		lineageTag: b35508b8-25f7-4de8-9a26-a7c23c92c66a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Short]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Start'
+		formatString: General Date
+		lineageTag: 215668f6-7145-4301-ada3-cd5450c8a02b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Start]
+
+		variation Variation
+			isDefault
+			relationship: 9601d7c0-c78e-483c-84ec-e29134e9689e
+			defaultHierarchy: LocalDateTable_c446a906-769f-44af-b7e7-c85eeeac9d49.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Name'
+		lineageTag: 40297987-9923-4355-a8ad-f23fd961b70a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Short'
+		lineageTag: dad363b1-b170-46bf-a1f3-c48cb008e932
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day Short]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Weekend'
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: de1331d7-0134-434e-be15-1942ee47f5e8
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Is Weekend]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Number'
+		formatString: 0
+		lineageTag: 2734fa0d-882e-49c5-8305-3fc64e5affe9
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Week Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Start'
+		formatString: General Date
+		lineageTag: 1cb9b23b-775d-4ea8-beb7-2874fa198ea3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week Start]
+
+		variation Variation
+			isDefault
+			relationship: 67028401-2fe0-45b0-942a-ba85c5d30e68
+			defaultHierarchy: LocalDateTable_d5ab4895-dc3e-4a08-834a-11142ae2e7a6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		lineageTag: 25ea5d5e-d889-434a-8186-fe4698998fd5
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quarter Start'
+		formatString: General Date
+		lineageTag: e208f435-5c8e-40c6-871f-50ddd3874e76
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter Start]
+
+		variation Variation
+			isDefault
+			relationship: e7e433f4-c315-4547-aebf-2018a629b840
+			defaultHierarchy: LocalDateTable_552147fe-f867-4de9-b29e-3324cef31093.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterSort
+		formatString: 0
+		lineageTag: e6d42a39-9b0e-44e0-bc3d-12dcacd245bc
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [QuarterSort]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year-Month
+		lineageTag: b42d2fc5-87e5-4f9e-bf17-2df54f8efbbf
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year-Month]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year-Quarter
+		lineageTag: b1bbf634-ab61-4aa5-b7dc-3be5df6520aa
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year-Quarter]
+		sortByColumn: QuarterSort
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Academic Year'
+		formatString: 0
+		lineageTag: c48d893a-b220-4355-8431-842a8b0d3f14
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Academic Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Label (Academic)'
+		lineageTag: b5954d0d-cfcf-4194-9263-95f45e29278d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Label (Academic)]
+		sortByColumn: YearLabelAcademicSort
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearLabelAcademicSort
+		formatString: 0
+		lineageTag: 777a025c-c640-4eee-aa41-07a0331f65c8
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [YearLabelAcademicSort]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _DateTable = calculated
+		mode: import
+		source = ```
+				
+				VAR MinYear = 2010
+				VAR MaxYear = 2030
+				VAR AcademicYearStartMonth = 10   
+				RETURN
+				ADDCOLUMNS(
+				    CALENDAR(DATE(MinYear,1,1), DATE(MaxYear,12,31)),
+				
+				    "Year", YEAR([Date]),
+				    "Year Start", DATE(YEAR([Date]),1,1),
+				    "Year Label", "CY " & YEAR([Date]),
+				    "YearLabelSort", YEAR([Date]),
+				
+				    "Month Number", MONTH([Date]),
+				    "Month Name", FORMAT([Date],"MMMM"),
+				    "Month Short", FORMAT([Date],"MMM"),
+				    "Month Start", DATE(YEAR([Date]),MONTH([Date]),1),
+				
+				    "Day Name", FORMAT([Date],"dddd"),
+				    "Day Short", FORMAT([Date],"ddd"),
+				    "Is Weekend", WEEKDAY([Date],2) > 5,
+				
+				    "Week Number", WEEKNUM([Date],2),
+				    "Week Start", [Date] - WEEKDAY([Date],2) + 1,
+				
+				    "Quarter", "Q" & FORMAT([Date],"Q"),
+				    "Quarter Start", DATE(YEAR([Date]), (QUARTER([Date])-1)*3+1, 1),
+				    "QuarterSort", YEAR([Date])*10 + QUARTER([Date]),
+				
+				    "Year-Month", FORMAT([Date],"YYYY-MM"),
+				    "Year-Quarter", YEAR([Date]) & " Q" & FORMAT([Date],"Q"),
+				
+				    "Academic Year", IF(MONTH([Date]) >= AcademicYearStartMonth, YEAR([Date])+1, YEAR([Date])),
+				    "Year Label (Academic)",
+				        VAR AcadYr = IF(MONTH([Date]) >= AcademicYearStartMonth, YEAR([Date]), YEAR([Date])-1)
+				        RETURN AcadYr & "-" & (AcadYr+1),
+				    "YearLabelAcademicSort",
+				        IF(MONTH([Date]) >= AcademicYearStartMonth, YEAR([Date]), YEAR([Date])-1)
+				)
+				```
+
+	annotation PBI_Id = 523891a5920949e09d0bd1ad4d88d28f
+

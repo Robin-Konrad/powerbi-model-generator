@@ -1,0 +1,96 @@
+table sample_fact_table
+	lineageTag: c641450a-71d2-4aeb-9b55-bc03df66b519
+
+	column ID
+		dataType: int64
+		formatString: 0
+		lineageTag: 86272309-c68a-4414-bc98-1f858d6fa1df
+		summarizeBy: count
+		sourceColumn: ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrderDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d4a49b46-3675-494d-a545-44c74c0475ff
+		summarizeBy: none
+		sourceColumn: OrderDate
+
+		variation Variation
+			isDefault
+			relationship: 165367a8-8dc8-47dc-9f53-553820d2d592
+			defaultHierarchy: LocalDateTable_4236340b-3d28-4299-a1da-26f20100d32a.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Region
+		dataType: string
+		lineageTag: aa7bf18f-9310-4c3c-b338-74350de7c241
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column Product
+		dataType: string
+		lineageTag: 4f49cc4a-0d81-4034-a1b6-cd62b53699de
+		summarizeBy: none
+		sourceColumn: Product
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 2defec7d-3888-42c1-af35-c7fe06cf75b8
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice
+		dataType: double
+		lineageTag: 0faa8b10-b1ba-404a-beac-9c25cec7e7b3
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Discount
+		dataType: double
+		lineageTag: aa1be90b-9922-4eff-9a89-7245bc31857c
+		summarizeBy: sum
+		sourceColumn: Discount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Revenue
+		dataType: double
+		lineageTag: c9fee728-3b55-43d5-8633-15594e24e1dd
+		summarizeBy: sum
+		sourceColumn: Revenue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition sample_fact_table = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\124377116\Downloads\sample_fact_table.xlsx"), null, true),
+				    sample_fact_table_Sheet = Source{[Item="sample_fact_table",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(sample_fact_table_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ID", Int64.Type}, {"OrderDate", type date}, {"Region", type text}, {"Product", type text}, {"Quantity", Int64.Type}, {"UnitPrice", type number}, {"Discount", type number}, {"Revenue", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
