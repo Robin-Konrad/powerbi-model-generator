@@ -3,7 +3,7 @@ import generator.core as core
 from measures_columns import add_fixed_measures_columns
 from globals_table import create_globals_table
 from granularity_parameter import create_date_granularity_parameter
-from tmdl_lint import lint_run()
+from tmdl_lint import lint_run
 
 def add_date_relationship():
     """
