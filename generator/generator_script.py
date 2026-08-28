@@ -3,6 +3,7 @@ import generator.core as core
 from measures_columns import add_fixed_measures_columns
 from globals_table import create_globals_table
 from granularity_parameter import create_date_granularity_parameter
+from tmdl_lint import lint_tables_dir
 
 def add_date_relationship():
     """
@@ -44,6 +45,14 @@ def main():
     add_fixed_measures_columns()
 
     print(f"Script finished running. open the .pbip in Power Bi to see the results")
+
+    # run tmdl_lint at the end to quickly find any common errors in the tmdl files
+    problems = lint_tables_dir()
+    if problems:
+        print(f"WARNING: tmdl_lint.py found {len(problems)} issue(s):")
+        for p in problems:
+            print(f" - {p}")
+
 
 
 if __name__ == "__main__":
