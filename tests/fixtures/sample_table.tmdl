@@ -1,0 +1,18 @@
+table Customer Orders
+	column ID
+		dataType: int64
+
+	column Order Date
+		dataType: dateTime
+
+	column 'Customer Name'
+		dataType: string
+
+	column 'Items Ordered'
+		dataType: int64
+
+	column 'Order Total'
+		dataType: double
+
+	column 'Discount Deduction'
+		dataType: decimal
