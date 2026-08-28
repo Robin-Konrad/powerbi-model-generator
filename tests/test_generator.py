@@ -68,7 +68,7 @@ def test_find_numeric_fields_excludes_non_numeric_columns(tmp_path, monkeypatch)
 
     fields = find_numeric_fields()
 
-    assert "Order Date" not in fields  # dateTime
+    assert "OrderDate" not in fields  # dateTime
     assert "Customer Name" not in fields  # string
 
 
