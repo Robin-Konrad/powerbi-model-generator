@@ -1,6 +1,8 @@
 import json
+from pathlib import Path
 
-with open("../config.json") as f:
+CONFIG_PATH = Path(__file__).parent.parent / "config.json"
+with open(CONFIG_PATH) as f:
     _cfg = json.load(f)
 
 PROJECTNAME = _cfg["project_name"]
@@ -9,9 +11,9 @@ DATE_FIELD_NAME = _cfg["date_field_name"]
 GRANULARITY_ALL = _cfg["granularity_all"]
 ACADEMIC_MONTH = _cfg["academic_month"]
 
-TABLES_DIR = f"../template/{PROJECTNAME}.SemanticModel/definition/tables"
-RELATIONSHIPS_FILE = f"../template/{PROJECTNAME}.SemanticModel/definition/relationships.tmdl"
-TABLE_FILE = f"{TABLES_DIR}/{TABLE_NAME}.tmdl"
+TABLES_DIR = Path(__file__).parent.parent / "template" / f"{PROJECTNAME}.SemanticModel" / "definition" / "tables"
+RELATIONSHIPS_FILE = Path(__file__).parent.parent / "template" / f"{PROJECTNAME}.SemanticModel" / "definition" / "relationships.tmdl"
+TABLE_FILE = TABLES_DIR / f"{TABLE_NAME}.tmdl"
 
 # helper functions
 def quote(name):
