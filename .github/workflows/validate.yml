@@ -30,5 +30,6 @@ jobs:
 
       - name: Run generator against test tables
         env:
+          PYTHONPATH: ${{ github.workspace }}
           TMDL_TABLES_DIR: tests/fixtures/tables
         run: python generator/generator_script.py
