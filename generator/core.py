@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 CONFIG_PATH = Path(__file__).parent.parent / "config.json"
@@ -11,9 +12,13 @@ DATE_FIELD_NAME = _cfg["date_field_name"]
 GRANULARITY_ALL = _cfg["granularity_all"]
 ACADEMIC_MONTH = _cfg["academic_month"]
 
-TABLES_DIR = Path(__file__).parent.parent / "template" / f"{PROJECTNAME}.SemanticModel" / "definition" / "tables"
-RELATIONSHIPS_FILE = Path(__file__).parent.parent / "template" / f"{PROJECTNAME}.SemanticModel" / "definition" / "relationships.tmdl"
-TABLE_FILE = TABLES_DIR / f"{TABLE_NAME}.tmdl"
+DEFAULT_TABLES_DIR = Path(__file__).parent.parent / "template" / f"{PROJECTNAME}.SemanticModel" / "definition" / "tables"
+
+# allow override via environment variable
+TABLES_DIR = Path(os.getenv("TMDL_TABLES_DIR", DEFAULT_TABLES_DIR))
+
+RELATIONSHIPS_FILE = TABLES_DIR.parent / "relationships.tmdl"
+TABLE_FILE = DEFAULT_TABLES_DIR / f"{TABLE_NAME}.tmdl"
 
 # helper functions
 def quote(name):
