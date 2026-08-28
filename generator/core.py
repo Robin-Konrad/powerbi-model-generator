@@ -18,7 +18,7 @@ DEFAULT_TABLES_DIR = Path(__file__).parent.parent / "template" / f"{PROJECTNAME}
 TABLES_DIR = Path(os.getenv("TMDL_TABLES_DIR", DEFAULT_TABLES_DIR))
 
 RELATIONSHIPS_FILE = TABLES_DIR.parent / "relationships.tmdl"
-TABLE_FILE = DEFAULT_TABLES_DIR / f"{TABLE_NAME}.tmdl"
+TABLE_FILE = TABLES_DIR / f"{TABLE_NAME}.tmdl"
 
 # helper functions
 def quote(name):
